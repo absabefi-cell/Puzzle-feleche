@@ -1,0 +1,138 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>La Flèche Jaune</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Figtree:wght@400;600&display=swap">
+<style>
+/* Layout: one centered column, the puzzle tray is the hero, controls below */
+:root{
+  --bg:#efe3d6; --fg:#2e2620; --muted:#7a6a5c; --line:#d8c6b3;
+  --tray:#8a8458; --tray-in:#a39d70; --floor:#b7b089;
+  --block:#f08a1c; --block-hi:#ffa847; --block-lo:#c2690c;
+  --arrow:#f2c230; --arrow-hi:#ffd95e; --arrow-lo:#c7960e;
+  --btn:#2e2620; --btn-fg:#fff8ef;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Figtree",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1f1a16; --fg:#f3e8dc; --muted:#a8968a; --line:#3a312a; --btn:#f3e8dc; --btn-fg:#1f1a16; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1f1a16; --fg:#f3e8dc; --muted:#a8968a; --line:#3a312a; --btn:#f3e8dc; --btn-fg:#1f1a16; color-scheme:dark}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+main{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;justify-content:space-between;align-items:end;gap:12px}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;line-height:1;margin:0;text-wrap:balance}
+h1 span{color:var(--arrow-lo)}
+.sub{color:var(--muted);font-size:.95rem;margin:6px 0 0}
+.levels{display:flex;gap:6px}
+.lv{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:transparent;color:var(--fg);font:600 .9rem var(--body);cursor:pointer}
+.lv[aria-current="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn)}
+.lv.done{border-color:var(--arrow-lo)}
+.stats{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--fg);font-family:var(--display);font-size:1.2rem}
+.tray{position:relative;width:100%;aspect-ratio:1;max-width:100%;background:var(--tray);border-radius:14px;padding:5%;box-sizing:border-box;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.18),inset 0 4px 0 rgba(255,255,255,.18),0 10px 24px rgba(0,0,0,.18)}
+.floor{position:relative;width:100%;height:100%;background:var(--floor);border-radius:4px;box-shadow:inset 0 3px 8px rgba(0,0,0,.25);
+  background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.035) 0 2px,transparent 2px 6px);touch-action:none}
+.gap{position:absolute;bottom:-12%;height:13%;background:var(--bg);border-radius:0 0 4px 4px}
+.gap::after{content:"SORTIE";position:absolute;inset:auto 0 -1.4em;text-align:center;font:600 .62rem var(--body);letter-spacing:.14em;color:var(--muted)}
+.pc{position:absolute;box-sizing:border-box;padding:1.2%;transition:left .12s,top .12s,transform .5s ease-in;cursor:grab;touch-action:none}
+.pc.drag{transition:none;cursor:grabbing;z-index:3}
+.pc i{display:block;width:100%;height:100%;border-radius:4px;background:var(--block);
+  box-shadow:inset 0 -4px 0 var(--block-lo),inset 0 3px 0 var(--block-hi),0 3px 4px rgba(0,0,0,.25);position:relative}
+.pc i::after{content:"";position:absolute;inset:22% 30%;border:2px solid var(--block-lo);opacity:.45;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.pc.arrow i{background:var(--arrow);box-shadow:inset 0 -4px 0 var(--arrow-lo),inset 0 3px 0 var(--arrow-hi),0 3px 4px rgba(0,0,0,.25)}
+.pc.arrow i::after{display:none}
+.pc.arrow svg{position:absolute;inset:8% 22%;width:56%;height:84%}
+.pc.out{transform:translateY(160%)}
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+button.act{flex:1;min-width:110px;padding:12px;border-radius:10px;border:2px solid var(--btn);background:transparent;color:var(--fg);font:600 1rem var(--body);cursor:pointer}
+button.act.main{background:var(--btn);color:var(--btn-fg)}
+button:focus-visible,.pc:focus-visible{outline:3px solid var(--arrow-lo);outline-offset:2px}
+.win{text-align:center;font-family:var(--display);font-size:1.25rem;font-weight:800;min-height:1.6em;margin:0}
+.help{color:var(--muted);font-size:.88rem;line-height:1.5;margin:0}
+@media (prefers-reduced-motion:reduce){.pc{transition:none}}
+</style>
+
+<main>
+  <header>
+    <div>
+      <h1>La flèche <span>jaune</span></h1>
+      <p class="sub">Fais sortir la flèche par l'ouverture du cadre.</p>
+    </div>
+  </header>
+  <div class="levels" id="levels"></div>
+  <div class="stats"><span>Coups <b id="moves">0</b></span><span>Meilleur possible <b id="best">0</b></span></div>
+  <div class="tray"><div class="floor" id="floor"></div></div>
+  <p class="win" id="win" aria-live="polite"></p>
+  <div class="controls">
+    <button class="act" id="undo">Annuler</button>
+    <button class="act main" id="reset">Recommencer</button>
+  </div>
+  <p class="help">Glisse les blocs avec le doigt, une case à la fois ou plusieurs d'un coup. Les blocs ne tournent pas et ne sautent pas par-dessus les autres. La flèche sort quand elle arrive devant l'ouverture du bas.</p>
+</main>
+
+<script>
+const N=5;
+// Each level: exit column, best solution in single-cell moves, pieces [x,y,w,h]; piece 0 is the arrow. All verified solvable.
+const LEVELS=[
+  {ex:2,best:12,p:[[4,0,1,3],[1,2,3,1],[3,3,1,2],[1,3,1,2],[0,1,1,1],[1,1,2,1],[4,3,1,1],[3,1,1,1]]},
+  {ex:4,best:19,p:[[0,1,1,3],[2,1,2,1],[1,3,3,1],[1,2,3,1],[4,0,1,1],[1,0,1,2]]},
+  {ex:0,best:36,p:[[4,0,1,3],[1,1,1,2],[1,4,3,1],[0,3,1,1],[1,3,1,1],[2,1,2,2],[0,1,1,2]]},
+  {ex:2,best:79,p:[[0,0,1,3],[2,2,3,1],[1,4,1,1],[1,1,2,1],[0,3,3,1],[3,0,2,2],[1,0,2,1]]}
+];
+const floor=document.getElementById('floor');
+let lvl=0, pcs, moves, hist, won, els=[], solved=new Set();
+try{JSON.parse(localStorage.getItem('fj-solved')||'[]').forEach(i=>solved.add(i))}catch(e){}
+
+const arrowSvg='<svg viewBox="0 0 20 60" fill="none" stroke="#c7960e" stroke-width="2.2" stroke-linejoin="round"><path d="M10 3 17 13 13 13 13 47 17 47 10 57 3 47 7 47 7 13 3 13Z"/></svg>';
+
+function levelsUI(){
+  const box=document.getElementById('levels');box.innerHTML='';
+  LEVELS.forEach((_,i)=>{const b=document.createElement('button');b.className='lv'+(solved.has(i)?' done':'');b.textContent=i+1;
+    b.setAttribute('aria-label','Niveau '+(i+1));b.setAttribute('aria-current',i===lvl);b.onclick=()=>load(i);box.appendChild(b)});
+}
+function load(i){
+  lvl=i;const L=LEVELS[i];pcs=L.p.map(a=>a.slice());moves=0;hist=[];won=false;
+  floor.innerHTML='';els=[];
+  const g=document.createElement('div');g.className='gap';g.style.left=(L.ex*20+2)+'%';g.style.width='16%';floor.appendChild(g);
+  pcs.forEach((p,k)=>{const d=document.createElement('div');d.className='pc'+(k===0?' arrow':'');d.tabIndex=0;
+    d.innerHTML='<i>'+(k===0?arrowSvg:'')+'</i>';d.setAttribute('aria-label',k===0?'Flèche jaune':'Bloc orange');
+    floor.appendChild(d);els.push(d);bind(d,k)});
+  document.getElementById('best').textContent=L.best;
+  document.getElementById('win').textContent='';
+  levelsUI();draw();
+}
+function draw(){pcs.forEach(([x,y,w,h],k)=>{const s=els[k].style;s.left=x*20+'%';s.top=y*20+'%';s.width=w*20+'%';s.height=h*20+'%'});
+  document.getElementById('moves').textContent=moves}
+function free(k,x,y){const[,,w,h]=pcs[k];if(x<0||y<0||x+w>N||y+h>N)return false;
+  return pcs.every((q,j)=>j===k||x+w<=q[0]||q[0]+q[2]<=x||y+h<=q[1]||q[1]+q[3]<=y)}
+function step(k,dx,dy){const p=pcs[k];if(!free(k,p[0]+dx,p[1]+dy))return false;p[0]+=dx;p[1]+=dy;moves++;return true}
+function check(){const[x,y,,h]=pcs[0],L=LEVELS[lvl];
+  if(!won&&x===L.ex&&y+h===N){won=true;els[0].classList.add('out');
+    solved.add(lvl);try{localStorage.setItem('fj-solved',JSON.stringify([...solved]))}catch(e){}
+    document.getElementById('win').textContent=moves<=L.best?'Parfait, solution optimale!':'Sortie! '+moves+' coups.';
+    levelsUI();if(lvl<LEVELS.length-1)setTimeout(()=>{if(won)load(lvl+1)},1800)}}
+function bind(d,k){
+  let sx,sy,cx,cy,axis,start;
+  d.addEventListener('pointerdown',e=>{if(won)return;d.setPointerCapture(e.pointerId);sx=e.clientX;sy=e.clientY;cx=0;cy=0;axis=null;
+    start={pos:pcs[k].slice(),moves};d.classList.add('drag')});
+  d.addEventListener('pointermove',e=>{if(!start)return;const c=floor.clientWidth/N,dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!axis&&Math.hypot(dx,dy)>8)axis=Math.abs(dx)>Math.abs(dy)?'x':'y';if(!axis)return;
+    const want=Math.round((axis==='x'?dx:dy)/c),cur=axis==='x'?cx:cy;
+    let n=cur;while(n!==want){const s=Math.sign(want-n);if(!step(k,axis==='x'?s:0,axis==='y'?s:0))break;n+=s}
+    if(axis==='x')cx=n;else cy=n;draw()});
+  const end=()=>{if(!start)return;d.classList.remove('drag');
+    const p=pcs[k];if(p[0]!==start.pos[0]||p[1]!==start.pos[1]){
+      moves=start.moves+Math.abs(p[0]-start.pos[0])+Math.abs(p[1]-start.pos[1]);hist.push({k,pos:start.pos,moves:start.moves})}
+    else moves=start.moves;
+    start=null;draw();check()};
+  d.addEventListener('pointerup',end);d.addEventListener('pointercancel',end);
+  d.addEventListener('keydown',e=>{const m={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+    if(!m||won)return;e.preventDefault();const pos=pcs[k].slice(),mv=moves;if(step(k,...m)){hist.push({k,pos,moves:mv});draw();check()}});
+}
+document.getElementById('undo').onclick=()=>{if(won||!hist.length)return;const h=hist.pop();pcs[h.k][0]=h.pos[0];pcs[h.k][1]=h.pos[1];moves=h.moves;draw()};
+document.getElementById('reset').onclick=()=>load(lvl);
+load(0);
+</script>
+
+</body></html>
